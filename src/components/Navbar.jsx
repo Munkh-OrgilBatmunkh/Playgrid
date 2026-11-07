@@ -9,14 +9,10 @@ export default function Navbar() {
   return (
     <header className="nav">
       <div className="container nav-inner">
-        <Link to="/" className="logo">
-          PLAY<span>GRID</span>
-        </Link>
+        <Link to="/" className="logo">PLAY<span>GRID</span></Link>
         <nav className="nav-links">
-          <NavLink to="/" end>
-            Нүүр
-          </NavLink>
-          <a href="/#games">Тоглоомууд</a>
+          <NavLink to="/" end>Нүүр</NavLink>
+          <Link to={{ pathname: '/', hash: '#games' }}>Тоглоомууд</Link>
           <NavLink to="/profile">Миний оноо</NavLink>
         </nav>
         <div className="nav-right">
@@ -26,14 +22,10 @@ export default function Navbar() {
                 <i style={{ background: tier.color }} />
                 {profile?.username || 'Профайл'} · {profile?.points ?? 0} оноо
               </Link>
-              <button className="btn btn-ghost" onClick={signOut}>
-                Гарах
-              </button>
+              <button className="btn btn-ghost" onClick={signOut}>Гарах</button>
             </>
           ) : (
-            <Link to="/login" className="btn btn-lime">
-              Нэвтрэх
-            </Link>
+            <Link to="/login" className="btn btn-lime">Нэвтрэх</Link>
           )}
         </div>
       </div>

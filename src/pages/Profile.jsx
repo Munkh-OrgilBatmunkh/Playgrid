@@ -6,30 +6,20 @@ import { getTier, TIERS } from '../lib/loyalty'
 import { money } from '../lib/format'
 
 export default function Profile() {
-  const { user, profile, loading, refreshProfile } = useAuth()
+  const { user, profile, loading } = useAuth()
   const [orders, setOrders] = useState([])
   const [log, setLog] = useState([])
-  const [msg, setMsg] = useState('')
 
-  const load = () => {
-    supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(20).then(({ data }) => setOrders(data || []))
+  useEffect(() => {
+    if (!user) return
+    supabase.from('orders').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(20).then(({ data }) => setOrders(data || []))
     supabase.from('points_log').select('*').order('created_at', { ascending: false }).limit(20).then(({ data }) => setLog(data || []))
-  }
-  useEffect(() => { if (user) load() }, [user])
+  }, [user])
 
   if (loading) return <main className="container"><p className="muted">Ачаалж байна…</p></main>
   if (!user) return <Navigate to="/login" replace />
 
   const { current, next, progress } = getTier(profile?.lifetime_points)
-  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Ulaanbaatar' })
-  const claimed = profile?.last_checkin === today
-
-  async function checkin() {
-    setMsg('')
-    const { data, error } = await supabase.rpc('daily_checkin')
-    setMsg(error ? error.message : `+${data} оноо авлаа!`)
-    await refreshProfile(); load()
-  }
 
   return (
     <main className="container">
@@ -42,11 +32,6 @@ export default function Profile() {
         <div className="panel"><small className="muted">Түвшин</small><div className="big" style={{ color: current.color }}>{current.name}</div><small className="muted">{current.mult}x оноо</small></div>
         <div className="panel"><small className="muted">Боломжит оноо</small><div className="big">{profile?.points ?? 0}</div><small className="muted">= {money(profile?.points)} хөнгөлөлт</small></div>
         <div className="panel"><small className="muted">Нийт цуглуулсан</small><div className="big">{profile?.lifetime_points ?? 0}</div><div className="bar"><i style={{ width: `${progress * 100}%` }} /></div><small className="muted">{next ? `${next.name} хүртэл ${next.min - profile.lifetime_points}` : 'Дээд түвшин'}</small></div>
-        <div className="panel">
-          <small className="muted">Өдрийн бонус · {profile?.streak ?? 0} өдрийн streak</small>
-          <button className="btn btn-lime btn-block" disabled={claimed} onClick={checkin}>{claimed ? 'Өнөөдөр авсан ✓' : 'Бонус авах'}</button>
-          {msg && <small className="ok">{msg}</small>}
-        </div>
       </div>
 
       <div className="two-col">
@@ -54,7 +39,11 @@ export default function Profile() {
           <h3>Захиалгын түүх</h3>
           {orders.length ? orders.map((o) => (
             <div className="row" key={o.id}>
-              <div><b>{o.product_title}</b><small className="muted">{new Date(o.created_at).toLocaleString('mn-MN')} · ID: {o.game_account}</small><code>{o.delivery_code}</code></div>
+              <div>
+                <b>{o.product_title}</b>
+                <small className="muted">{new Date(o.created_at).toLocaleString('mn-MN')}{o.game_account !== '-' ? ` · ${o.game_account}` : ''}</small>
+                <code>{o.delivery_code}</code>
+              </div>
               <div className="right"><b>{money(o.total)}</b><small className="lime-text">+{o.points_earned} оноо</small></div>
             </div>
           )) : <p className="muted">Захиалга байхгүй байна. Нүүр хуудаснаас анхны цэнэглэлтээ хийгээрэй.</p>}

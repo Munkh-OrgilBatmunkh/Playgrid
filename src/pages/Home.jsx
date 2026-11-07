@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase, isConfigured } from '../lib/supabase'
-import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
-import ComingSoonCarousel from '../components/ComingSoonCarousel'
+import FeaturedCarousel from '../components/FeaturedCarousel'
 import GameCard from '../components/GameCard'
 import TopUpModal from '../components/TopUpModal'
 import LoyaltyCard from '../components/LoyaltyCard'
 
+const CATEGORIES = ['Бүгд', 'PC', 'Mobile', 'Coupon']
+
 export default function Home() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const [games, setGames] = useState([])
-  const [wished, setWished] = useState(new Set())
-  const [top, setTop] = useState([])
   const [query, setQuery] = useState('')
   const [cat, setCat] = useState('Бүгд')
   const [open, setOpen] = useState(null)
@@ -24,35 +20,14 @@ export default function Home() {
       if (error) setError(error.message)
       else setGames(data)
     })
-    supabase.rpc('top_players', { p_limit: 5 }).then(({ data }) => setTop(data || []))
   }, [])
 
-  useEffect(() => {
-    if (!user) return setWished(new Set())
-    supabase.from('wishlist').select('game_id').then(({ data }) => setWished(new Set((data || []).map((r) => r.game_id))))
-  }, [user])
-
-  const comingSoon = games.filter((g) => g.is_coming_soon)
-  const active = games.filter((g) => !g.is_coming_soon)
-  const categories = ['Бүгд', ...new Set(active.map((g) => g.category))]
+  const featured = games.filter((g) => g.is_featured)
 
   const visible = useMemo(
-    () => active.filter((g) => (cat === 'Бүгд' || g.category === cat) && g.title.toLowerCase().includes(query.toLowerCase())),
-    [active, cat, query]
+    () => games.filter((g) => (cat === 'Бүгд' || g.category === cat) && g.title.toLowerCase().includes(query.toLowerCase())),
+    [games, cat, query]
   )
-
-  async function toggleWish(game) {
-    if (!user) return navigate('/login')
-    const next = new Set(wished)
-    if (wished.has(game.id)) {
-      next.delete(game.id)
-      await supabase.from('wishlist').delete().eq('game_id', game.id).eq('user_id', user.id)
-    } else {
-      next.add(game.id)
-      await supabase.from('wishlist').insert({ game_id: game.id, user_id: user.id })
-    }
-    setWished(next)
-  }
 
   return (
     <main className="container">
@@ -69,35 +44,25 @@ export default function Home() {
         <h1>Хурдан цэнэглэ. Оноо цуглуул.</h1>
       </div>
 
-      <ComingSoonCarousel games={comingSoon} wished={wished} onToggleWish={toggleWish} />
+      <FeaturedCarousel games={featured} onOpen={setOpen} />
 
       <div className="layout" id="games">
         <section>
-          <div className="section-head"><h2>Цэнэглэх боломжтой тоглоомууд</h2></div>
+          <div className="section-head"><h2>Бүх бүтээгдэхүүн</h2></div>
           <div className="filters">
             <input className="input search" placeholder="Тоглоом хайх…" value={query} onChange={(e) => setQuery(e.target.value)} />
-            {categories.map((c) => (
+            {CATEGORIES.map((c) => (
               <button key={c} className={c === cat ? 'chip on' : 'chip'} onClick={() => setCat(c)}>{c}</button>
             ))}
           </div>
           <div className="grid">
             {visible.map((g, i) => <GameCard key={g.id} game={g} index={i} onOpen={setOpen} />)}
           </div>
-          {isConfigured && !visible.length && <p className="muted empty">Тохирох тоглоом олдсонгүй. Хайлтаа өөрчилж үзнэ үү.</p>}
+          {isConfigured && !visible.length && <p className="muted empty">Тохирох бүтээгдэхүүн олдсонгүй. Хайлтаа өөрчилж үзнэ үү.</p>}
         </section>
 
         <aside className="side">
           <LoyaltyCard />
-          <div className="panel">
-            <h3>Топ тоглогчид</h3>
-            {top.length ? (
-              <ol className="rank">
-                {top.map((p, i) => (
-                  <li key={i}><span>{i + 1}</span><b>{p.username}</b><em>{p.lifetime_points}</em></li>
-                ))}
-              </ol>
-            ) : <p className="muted">Эхний захиалгаа өгч жагсаалтад орно уу.</p>}
-          </div>
         </aside>
       </div>
 
