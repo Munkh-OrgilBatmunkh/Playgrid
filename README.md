@@ -1,5 +1,13 @@
 # PLAYGRID — тоглоомын кредит цэнэглэх сайт (React + Vite + Supabase)
 
+##Зорилго. Тоглогч нэг дор:
+
+Тоглоомоо сонгож, хайж, шүүнэ.
+Тоглоом бүрийн өөрийн ID форматаар ID-гаа оруулж, шууд шалгуулна.
+QPay QR эсвэл картаар төлнө.
+И-мэйлээр баримт авна.
+Худалдан авалт бүрээс оноо цуглуулж, түвшин ахиж (Bronze → Platinum), дараагийн захиалгадаа хөнгөлөлт авна.
+
 ## Ажиллуулах
 1. Supabase дээр шинэ project үүсгэнэ.
 2. **SQL Editor** → шинэ өгөгдлийн сан бол `supabase/schema.sql`, одоо ажиллаж буй сан бол `supabase/migration_v3.sql`-ийг paste хийж **Run** дарна.
@@ -18,7 +26,7 @@ Carousel-д харагдах тоглоом: Supabase → Table Editor → `game
 - `.env`-д ЗӨВХӨН anon түлхүүр. `service_role` түлхүүрийг frontend-д хэзээ ч бүү тавь. `.env` нь `.gitignore`-д орсон.
 - Оноо, захиалгыг зөвхөн `place_order()` / `daily_checkin()` функц өөрчилнэ (RLS-ээр хамгаалсан) — хэрэглэгч өөрийн оноог засаж чадахгүй.
 
-## Төлбөр (ДЕМО)
+## Төлбөр
 QPay QR болон картын төлбөр одоогоор туршилтын горимтой — жинхэнэ мөнгө шилжихгүй. Картын мэдээлэл хөтөч дээр шалгагдаад хаагдана, хаана ч хадгалагдахгүй.
 Бодит төлбөр холбохдоо: (1) QPay merchant API-г Supabase Edge Function-аар дуудаж invoice/QR үүсгэнэ (нууц түлхүүр зөвхөн сервер талд),
 (2) QPay callback (webhook)-оор `confirm_payment`-ийг service role-оор дуудна, (3) `revoke execute on function confirm_payment from authenticated`.
