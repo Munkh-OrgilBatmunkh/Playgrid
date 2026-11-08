@@ -7,9 +7,14 @@ export default function LoyaltyCard() {
   if (!user) {
     return (
       <div className="panel">
-        <h3>Лоялти хөтөлбөр</h3>
-        <p className="muted">Худалдан авалт бүрээс оноо цуглуулж, дараагийн захиалгадаа хөнгөлөлт аваарай.</p>
-        <Link to="/login" className="btn btn-lime btn-block">Нэгдэх</Link>
+        <h3>Loyalty хөтөлбөр</h3>
+        <p className="muted">
+          Худалдан авалт бүрээс оноо цуглуулж, дараагийн захиалгадаа хөнгөлөлт
+          аваарай.
+        </p>
+        <Link to="/login" className="btn btn-lime btn-block">
+          Нэгдэх
+        </Link>
       </div>
     )
   }
@@ -18,14 +23,25 @@ export default function LoyaltyCard() {
     <div className="panel">
       <div className="panel-head">
         <h3>Миний түвшин</h3>
-        <span className="tier" style={{ background: current.color }}>{current.name}</span>
+        <span className="tier" style={{ background: current.color }}>
+          {current.name}
+        </span>
       </div>
-      <div className="big">{profile?.points ?? 0}<small> оноо</small></div>
-      <div className="bar"><i style={{ width: `${progress * 100}%` }} /></div>
+      <div className="big">
+        {profile?.points ?? 0}
+        <small> оноо</small>
+      </div>
+      <div className="bar">
+        <i style={{ width: `${progress * 100}%` }} />
+      </div>
       <p className="muted">
-        {next ? `${next.name} хүртэл ${next.min - (profile?.lifetime_points || 0)} оноо` : 'Хамгийн дээд түвшинд хүрсэн'}
+        {next
+          ? `${next.name} хүртэл ${next.min - (profile?.lifetime_points || 0)} оноо`
+          : 'Хамгийн дээд түвшинд хүрсэн'}
       </p>
-      <Link to="/profile" className="btn btn-outline btn-block">Дэлгэрэнгүй</Link>
+      <Link to="/profile" className="btn btn-outline btn-block">
+        Дэлгэрэнгүй
+      </Link>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import Poster from './Poster'
 export default function GameCard({ game, index, onOpen }) {
   return (
     <article className="card">
-      <Poster className="card-img" src={`/covers/${game.slug}.jpg`} title={game.title} seed={index} />
+      <Poster className="card-img" path={game.cover_path} title={game.title} seed={index} />
       <div className="card-body">
         <span className="chip-sm">{game.category}</span>
         <h3>{game.title}</h3>
